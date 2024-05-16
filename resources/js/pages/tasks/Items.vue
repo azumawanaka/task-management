@@ -16,7 +16,7 @@
         taskId.value = task.id;
         Swal.fire({
             title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            // text: "Moving",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -26,8 +26,8 @@
             if (result.isConfirmed) {
                 deleteTask(task.id).then((response) => {
                     Swal.fire({
-                        title: "Deleted!",
-                        text: "Task has been deleted.",
+                        title: "Success!",
+                        text: "Task was moved to trash.",
                         icon: "success",
                         showConfirmButton: false,
                         timer: 1500

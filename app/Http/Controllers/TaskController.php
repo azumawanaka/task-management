@@ -2,99 +2,97 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\FilterTasksAction;
+use App\Actions\SaveImagesAction;
+use App\Actions\StoreTaskAction;
+use App\Actions\UpdateTaskAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class TaskController extends Controller
 {
-    public function index()
+
+    /**
+     * @param FilterTasksAction $filterTasksAction
+     * 
+     * @return JsonResponse
+     */
+    public function index(FilterTasksAction $filterTasksAction): JsonResponse
     {
         $limit = request('limit') ?? 10;
-        $sortColumn = request('sortColumn') ?? 'created_at';
-        $sortOrder = request('sortOrder') ?? 'desc';
-        $filterBy = request('filterBy') ?? '';
-        $toggleBy = request('toggleBy') ?? 'is_published';
-        $query = request('query') ?? '';
-        $tasks = Task::where(function ($queryBuilder) use ($query, $filterBy) {
-                    if (empty($filterBy)) {
-                        $queryBuilder->where('title', 'like', "%".$query."%");
-                    } else {
-                        $queryBuilder->where('status', $filterBy)
-                                     ->where('title', 'like', "%".$query."%");
-                    }
-                });
-
-        $isPublished = $toggleBy === 'is_published';
-        $tasks->where('is_published', $isPublished)
-            ->orderBy($sortColumn , $sortOrder);
-        
-        return response()->json($tasks->paginate($limit));
+        $tasks = $filterTasksAction->execute()->paginate($limit);
+ 
+        return response()->json($tasks);
     }
 
-    public function store(TaskRequest $taskRequest)
-    {
-        $task = Task::create([
-            'user_id' => auth()->user()->id,
-            'title' => $taskRequest->title,
-            'content' => $taskRequest->content,
-            'status' => $taskRequest->status,
-            'is_published' => $taskRequest->is_published == 'is_published' ? true : false,
-        ]);
-
-        $imagePaths = [];
-        if ($taskRequest->hasFile('images')) {
-            foreach ($taskRequest->file('images') as $image) {
-                $path = $image->store('tasks', 'public');
-                $imagePaths[] = Storage::url($path); 
-            }
-        }
-
-        $task->files = $imagePaths;
+    /**
+     * @param TaskRequest $taskRequest
+     * @param StoreTaskAction $storeTaskAction
+     * @param SaveImagesAction $saveImagesAction
+     * 
+     * @return Task
+     */
+    public function store(
+        TaskRequest $taskRequest,
+        StoreTaskAction $storeTaskAction,
+        SaveImagesAction $saveImagesAction
+    ): Task {
+        $task = $storeTaskAction->execute($taskRequest->all());
+        $task->files = $saveImagesAction->execute($taskRequest);
         $task->save();
 
         return $task;
     }
 
-    public function update(Task $task, UpdateTaskRequest $updateTaskRequest)
-    {
+    /**
+     * @param Task $task
+     * @param UpdateTaskRequest $updateTaskRequest
+     * @param UpdateTaskAction $updateTaskAction
+     * @param SaveImagesAction $saveImagesAction
+     * 
+     * @return Task
+     */
+    public function update(
+        Task $task,
+        UpdateTaskRequest $updateTaskRequest,
+        UpdateTaskAction $updateTaskAction,
+        SaveImagesAction $saveImagesAction
+    ): Task {
         $existingImages = $updateTaskRequest->existingImages ?? [];
-        $task->update([
-            'title' => $updateTaskRequest->title,
-            'content' => $updateTaskRequest->content,
-            'status' => $updateTaskRequest->status,
-            'is_published' => $updateTaskRequest->is_published == 'is_published' ? true : false,
-        ]);
 
-         $imagePaths = [];
-         if ($updateTaskRequest->hasFile('images')) {
-             foreach ($updateTaskRequest->file('images') as $image) {
-                $path = $image->store('tasks', 'public');
-                $imagePaths[] = Storage::url($path);
-             }
-         }
+        $updateTaskAction->execute($task, $updateTaskRequest);
+
+        $imagePaths = $saveImagesAction->execute($updateTaskRequest);
 
         $allImages = array_merge($existingImages, $imagePaths);
-
         $task->files = $allImages;
+
         $task->save();
 
         return $task;
     }
 
-    public function destroy(Task $task)
+    /**
+     * @param Task $task
+     * 
+     * @return Response
+     */
+    public function destroy(Task $task): Response
     {
         $this->deleteFiles($task);
-
         $task->delete();
+
         return response()->noContent();
     }
 
-    public function bulkDelete()
+    /**
+     * @param JsonResponse
+     */
+    public function bulkDelete(): JsonResponse
     {
         $ids = request('ids');
         $tasks = Task::whereIn('id', $ids); 
@@ -107,7 +105,10 @@ class TaskController extends Controller
         return response()->json(['message' => 'Selected task was successfully deleted!']);
     }
 
-    private function deleteFiles($task)
+    /**
+     * @param Task $task
+     */
+    private function deleteFiles(Task $task)
     {
         foreach ($task->files as $relativePath) {
             $absolutePath = public_path($relativePath);
@@ -125,7 +126,26 @@ class TaskController extends Controller
         }
     }
 
-    public function show(Task $task)
+    /**
+     * Restore a soft-deleted task.
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function restore($id): Response
+    {
+        $task = Task::withTrashed()->findOrFail($id);
+        $task->restore();
+
+        return response()->noContent();
+    }
+
+    /**
+     * @param Task $task
+     * 
+     * @return JsonResponse
+     */
+    public function show(Task $task): JsonResponse
     {
         return response()->json($task);
     }
