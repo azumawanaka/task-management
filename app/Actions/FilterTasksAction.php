@@ -15,14 +15,14 @@ class FilterTasksAction
 
     public function execute()
     {
+        $limit = request('limit') ?? 10;
         $sortColumn = request('sortColumn') ?? 'created_at';
         $sortOrder = request('sortOrder') ?? 'desc';
         $filterBy = request('filterBy') ?? '';
-        // $toggleBy = request('toggleBy') ?? 'is_published';
         $query = request('query') ?? '';
 
         $authenticatedUser = auth()->user();    
-        $tasks = $authenticatedUser->tasks()->newQuery()
+        $tasksQuery = $authenticatedUser->tasks()->newQuery()
                 ->where(function ($queryBuilder) use ($query, $filterBy) {
                     if (empty($filterBy)) {
                         $queryBuilder->where('title', 'like', "%".$query."%");
@@ -30,11 +30,14 @@ class FilterTasksAction
                         $queryBuilder->where('status', $filterBy)
                                      ->where('title', 'like', "%".$query."%");
                     }
-                });
+                })
+                ->whereNull('parent_id')
+                ->orderBy($sortColumn , $sortOrder);
 
-        // $isPublished = $toggleBy === 'is_published';
-        // $tasks->where('is_published', $isPublished)
-        $tasks->orderBy($sortColumn , $sortOrder);
+        $tasks = $tasksQuery->paginate($limit);
+
+        // Eager load subtasks for each task
+        $tasks->load('subtasks');
 
         return $tasks;
     }

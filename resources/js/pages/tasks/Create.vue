@@ -3,11 +3,11 @@
     import { ref, onMounted } from 'vue';
     import { Form, Field } from 'vee-validate';
 
-    import * as yup from 'yup';
-    import { useToastr } from '../../toastr';
-
     import VueDatePicker from '@vuepic/vue-datepicker';
     import '@vuepic/vue-datepicker/dist/main.css';
+
+    import * as yup from 'yup';
+    import { useToastr } from '../../toastr';
 
     const toastr = useToastr();
     const loading = ref(false);

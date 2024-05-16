@@ -31,6 +31,7 @@ class Task extends Model
         'status',
         'files',
         'is_published',
+        'parent_id',
     ];
 
     /**
@@ -61,5 +62,10 @@ class Task extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function subtasks()
+    {
+        return $this->hasMany(Task::class, 'parent_id');
     }
 }

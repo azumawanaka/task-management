@@ -1,7 +1,8 @@
 <script setup>
-    import { ref } from 'vue';
+    import { ref, watch } from 'vue';
     import { formatDate } from '../../helper.js';
     import ConfirmDelete from '../../components/modals/tasks/ConfirmDelete.vue';
+    import SubTasks from '../../components/modals/tasks/SubTasks.vue';
 
     import { useToastr } from '../../toastr';
     const toastr = useToastr();
@@ -11,8 +12,9 @@
         index: Number,
     });
     const statuses = ref([]);
+    const subTasks = ref([]);
 
-    const emit = defineEmits(['taskDeleted', 'editTask', 'toggleSelection']);
+    const emit = defineEmits(['taskDeleted', 'editTask', 'toggleSelection', 'showSubTasks']);
     const taskId = ref(null);
 
     const confirmTaskDeletion = (task) => {
@@ -52,10 +54,6 @@
         return axios.delete(`/api/tasks/${taskId}`);
     };
 
-    const toggleSelection = (v) => {
-        emit('toggleSelection', v)
-    };
-
     const updatePublishStatus = () => {
         axios.post(`/api/tasks/${props.task.id}/publish_status`,
             {
@@ -86,7 +84,6 @@
 <template>
 
     <tr>
-        <!-- <td><input type="checkbox" class="task_checkbox" @change="toggleSelection(task)"></td> -->
         <td>{{ task.id }}</td>
         <td>{{ task.title }}</td>
         <td>{{ task.content.length > 50 ? task.content.slice(0, 50) + '...' : task.content }}</td>
@@ -101,18 +98,19 @@
                 <span class="toggle-status">{{ task.is_published ? 'Published' : 'Draft' }}</span>
             </div>
         </td>
-        <!-- <td><span :class="`badge badge-${task.is_published ? 'success' : 'warning text-white'}`">{{ task.is_published ? 'Published' : 'Draft' }}</span></td> -->
         <td>
             <router-link :to="`/tasks/${task.id}/edit`" class="text-info"><i class="fa fa-edit"></i></router-link>
 
             <a href="#"
                 class="text-danger ml-2"
                 @click="confirmTaskDeletion(task)"><i class="fa fa-trash"></i> </a>
+
+            <router-link :to="`/tasks/${task.id}/sub-tasks`" class="ml-2 text-primary"
+                title="sub-tasks"><i class="fa fa-list"></i></router-link>
         </td>
     </tr>
 
     <ConfirmDelete :task_id="taskId" @toggle-delete="deleteTask" />
-
 </template>
 
 <style scoped>

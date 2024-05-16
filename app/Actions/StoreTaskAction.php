@@ -21,6 +21,7 @@ class StoreTaskAction
                 'content' => $request['content'],
                 'status' => $request['status'],
                 'is_published' => $request['is_published'] == 'is_published' ? true : false,
+                'parent_id' => isset($request['parent_id']) ? $request['parent_id'] : null,
             ]);
     }
 }

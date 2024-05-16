@@ -23,8 +23,7 @@ class TaskController extends Controller
      */
     public function index(FilterTasksAction $filterTasksAction): JsonResponse
     {
-        $limit = request('limit') ?? 10;
-        $tasks = $filterTasksAction->execute()->paginate($limit);
+        $tasks = $filterTasksAction->execute();
  
         return response()->json($tasks);
     }
@@ -164,6 +163,9 @@ class TaskController extends Controller
      */
     public function show(Task $task): JsonResponse
     {
+        $task = $task->newQuery()->first();
+        $task->load('subtasks');
+
         return response()->json($task);
     }
 

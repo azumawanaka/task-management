@@ -4,6 +4,7 @@ import UserList from './pages/users/UserList.vue';
 import TaskList from './pages/tasks/List.vue';
 import TaskCreate from './pages/tasks/Create.vue';
 import TaskEdit from './pages/tasks/Edit.vue';
+import SubTasks from './pages/tasks/SubTasks.vue';
 
 export default [
     {
@@ -44,6 +45,12 @@ export default [
         path: '/tasks/:id/edit',
         name: 'tasks.edit',
         component: TaskEdit,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/tasks/:id/sub-tasks',
+        name: 'tasks.sub-tasks',
+        component: SubTasks,
         meta: { requiresAuth: true },
     },
 ]

@@ -12,7 +12,6 @@
     const tasks = ref([]);
     const formValues = ref();
     const form = ref(null);
-    const loading = ref(false);
     const statuses = ref({
         '' : 'Filter By',
         to_do:'To Do',
@@ -20,7 +19,6 @@
         done: 'Done',
     });
     const selectedtasks = ref([]);
-    const parentChecked = ref(false);
 
     const togglePub = ref('is_published');
     const filterBy = ref('');
@@ -32,7 +30,6 @@
         sortColumn: 'created_at',
         sortOrder: 'desc',
         filterBy: '',
-        // toggleBy: 'is_published',
     });
 
     const getTasks = (param) => {
@@ -69,18 +66,6 @@
         }
 
         getTasks(searchParam.value);
-    };
-
-    const checkAllChildren = (el) => {
-        const taskIds = tasks.value.data.map(task => task.id);
-
-        $('.task_checkbox').prop('checked', el.srcElement.checked).change();
-
-        if (el.srcElement.checked) {
-            selectedtasks.value = taskIds;
-        } else {
-            selectedtasks.value = [];
-        }
     };
 
     const bulkDelete = () => {
@@ -121,19 +106,11 @@
         }
         searchParam.value.sortColumn = column;
 
-        console.log(searchParam.value)
         getTasks(searchParam.value);
     };
 
     const toggleFilterByStatus = (v) => {
         searchParam.value.filterBy = filterBy.value;
-        getTasks(searchParam.value);
-    };
-    
-    const toggleBy = (v) => {
-        togglePub.value = v;
-
-        searchParam.value.toggleBy = togglePub.value
         getTasks(searchParam.value);
     };
 
@@ -162,10 +139,6 @@
             <div class="d-flex justify-content-between">
                 <div class="mb-3">
                     <router-link to="/tasks/create" class="btn btn-primary btn-sm">Create</router-link>
-
-                    <button v-if="selectedtasks.length > 0" type="button" class="btn btn-danger btn-sm ml-2" @click="bulkDelete">
-                        Delete Selected
-                    </button>
                 </div>
 
                 <div class="col-md-6 d-flex align-items-center justify-content-end">
@@ -182,15 +155,10 @@
 
             <div class="card">
                 <div class="card-body">
-                    <!-- <div class="btn-group toggle">
-                        <button type="button" class="btn btn-sm"  :class="togglePub === 'is_published' ? 'btn-success' : 'btn-light'"  @click="toggleBy('is_published')">Published</button>
-                        <button type="buton" class="btn btn-sm"  :class="togglePub === 'draft' ? 'btn-warning text-white' : 'btn-light'" @click="toggleBy('draft')">Drafts</button>
-                    </div> -->
                     <div class="table-responsive">
                         <table class="table table-hovered">
                             <thead>
                                 <tr>
-                                    <!-- <th style="width: 10px"><input type="checkbox" class="bulk-delete" v-model="parentChecked" @change="checkAllChildren"></th> -->
                                     <th style="width: 50px">ID</th>
                                     <th @click="sortBy('title')">
                                         Title
@@ -223,6 +191,7 @@
                                     :index=index
                                     @task-deleted="taskDeleted"
                                     @toggle-selection="toggleSelection"  />
+                                
                             </tbody>
 
                             <tfoot v-else>
@@ -256,6 +225,5 @@
     .loading button {
         pointer-events: none; /* Prevent form submission while loading */
         opacity: 0.7; /* Optionally decrease opacity to indicate loading state */
-        /* Add additional styling for indicating loading state */
     }
 </style>
