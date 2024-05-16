@@ -60,7 +60,14 @@
     };
 
     const taskDeleted = (taskId) => {
-        // tasks.value.data = tasks.value.data.filter(task => task.id !== task);
+        getTasks(searchParam.value);
+
+        if (tasks.value.length === 0) { // reset to page = 1 if current page has empty items
+            searchParam.value.page = 1;
+        } else {
+            searchParam.value.page = 1;
+        }
+
         getTasks(searchParam.value);
     };
 
@@ -73,15 +80,6 @@
             selectedtasks.value = taskIds;
         } else {
             selectedtasks.value = [];
-        }
-    };
-
-    const toggleSelection = (task) => {
-        const index = selectedtasks.value.indexOf(task.id);
-        if (index === -1) {
-            selectedtasks.value.push(task.id);
-        } else {
-            selectedtasks.value.splice(index, 1);
         }
     };
 
@@ -100,7 +98,16 @@
 
             getTasks(searchParam.value);
         });
-    }
+    };
+
+    const toggleSelection = (task) => {
+        const index = selectedtasks.value.indexOf(task.id);
+        if (index === -1) {
+            selectedtasks.value.push(task.id);
+        } else {
+            selectedtasks.value.splice(index, 1);
+        }
+    };
 
     const toggleLimit = () => {
         getTasks(searchParam.value);
