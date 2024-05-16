@@ -149,4 +149,15 @@ class TaskController extends Controller
     {
         return response()->json($task);
     }
+
+    /**
+     * @param Task $task
+     * 
+     * @return bool
+     */
+    public function updatePublishStatus(Task $task): bool
+    {
+        $is_published = request('is_published') === 'true';
+        return $task->update(['is_published' => $is_published]);
+    }
 }

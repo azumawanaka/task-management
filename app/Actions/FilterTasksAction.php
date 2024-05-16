@@ -18,7 +18,7 @@ class FilterTasksAction
         $sortColumn = request('sortColumn') ?? 'created_at';
         $sortOrder = request('sortOrder') ?? 'desc';
         $filterBy = request('filterBy') ?? '';
-        $toggleBy = request('toggleBy') ?? 'is_published';
+        // $toggleBy = request('toggleBy') ?? 'is_published';
         $query = request('query') ?? '';
 
         $authenticatedUser = auth()->user();    
@@ -32,9 +32,9 @@ class FilterTasksAction
                     }
                 });
 
-        $isPublished = $toggleBy === 'is_published';
-        $tasks->where('is_published', $isPublished)
-            ->orderBy($sortColumn , $sortOrder);
+        // $isPublished = $toggleBy === 'is_published';
+        // $tasks->where('is_published', $isPublished)
+        $tasks->orderBy($sortColumn , $sortOrder);
 
         return $tasks;
     }

@@ -32,7 +32,7 @@
         sortColumn: 'created_at',
         sortOrder: 'desc',
         filterBy: '',
-        toggleBy: 'is_published',
+        // toggleBy: 'is_published',
     });
 
     const getTasks = (param) => {
@@ -175,10 +175,10 @@
 
             <div class="card">
                 <div class="card-body">
-                    <div class="btn-group toggle">
+                    <!-- <div class="btn-group toggle">
                         <button type="button" class="btn btn-sm"  :class="togglePub === 'is_published' ? 'btn-success' : 'btn-light'"  @click="toggleBy('is_published')">Published</button>
                         <button type="buton" class="btn btn-sm"  :class="togglePub === 'draft' ? 'btn-warning text-white' : 'btn-light'" @click="toggleBy('draft')">Drafts</button>
-                    </div>
+                    </div> -->
                     <div class="table-responsive">
                         <table class="table table-hovered">
                             <thead>
@@ -232,7 +232,10 @@
                                 </select>
                             </div>
 
-                            <Bootstrap4Pagination :data="tasks" @pagination-change-page="changePage" :limit="searchParam.limit"/>
+                            <Bootstrap4Pagination
+                                :data="tasks"
+                                @pagination-change-page="changePage"
+                                :limit="searchParam.limit" />
                         </div>
 
                     </div>
