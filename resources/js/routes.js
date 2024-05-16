@@ -23,6 +23,12 @@ export default [
         meta: { requiresAuth: true },
     },
     {
+        path: '',
+        name: 'tasks',
+        component: TaskList,
+        meta: { requiresAuth: true },
+    },
+    {
         path: '/tasks',
         name: 'tasks',
         component: TaskList,

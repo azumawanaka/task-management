@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue';
+    import { ref, onMounted } from 'vue';
     import { formatDate } from '../../helper.js';
     import ConfirmDelete from '../../components/modals/tasks/ConfirmDelete.vue';
 
@@ -7,6 +7,7 @@
         task: Object,
         index: Number,
     });
+    const statuses = ref([]);
 
     const emit = defineEmits(['taskDeleted', 'editTask', 'toggleSelection']);
     const taskId = ref(null);
@@ -63,6 +64,7 @@
         <td>{{ task.content.length > 50 ? task.content.slice(0, 50) + '...' : task.content }}</td>
         <td>{{ task.status }}</td>
         <td>{{ formatDate(task.created_at) }}</td>
+        <td><span :class="`badge badge-${task.is_published ? 'success' : 'warning text-white'}`">{{ task.is_published ? 'Published' : 'Draft' }}</span></td>
         <td>
             <router-link :to="`/tasks/${task.id}/edit`" class="text-info"><i class="fa fa-edit"></i></router-link>
 

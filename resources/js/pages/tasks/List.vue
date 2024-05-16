@@ -13,20 +13,39 @@
     const formValues = ref();
     const form = ref(null);
     const loading = ref(false);
+    const statuses = ref({
+        '' : 'Filter By',
+        to_do:'To Do',
+        in_progress: 'In Progress',
+        done: 'Done',
+    });
     const selectedtasks = ref([]);
     const parentChecked = ref(false);
+
+    const togglePub = ref('is_published');
+    const filterBy = ref('');
+    const page_limits = ref([10, 20, 50, 100]);
     const searchParam = ref({
         page: 1,
         query: '',
-        limit: 2,
+        limit: 10,
+        sortColumn: 'created_at',
+        sortOrder: 'desc',
+        filterBy: '',
+        toggleBy: 'is_published',
     });
 
     const getTasks = (param) => {
         searchParam.value = param;
+        console.log(searchParam.value)
         axios.get(`/api/tasks?page=${searchParam.value.page}`, {
             params: {
                 query: searchParam.value.query,
                 limit: searchParam.value.limit,
+                sortColumn: searchParam.value.sortColumn,
+                sortOrder: searchParam.value.sortOrder,
+                filterBy: filterBy.value,
+                toggleBy: searchParam.value.toggleBy,
             }
         })
         .then((response) => {
@@ -36,6 +55,7 @@
 
     const changePage = (num) => {
         searchParam.value.page = num;
+        searchParam.value.toggleBy = togglePub.value
         getTasks(searchParam.value);
     };
 
@@ -82,6 +102,34 @@
         });
     }
 
+    const toggleLimit = () => {
+        getTasks(searchParam.value);
+    };
+
+    const sortBy = (column) => {
+        if (searchParam.value.sortColumn === column) {
+            searchParam.value.sortOrder = searchParam.value.sortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            searchParam.value.sortOrder = 'asc';
+        }
+        searchParam.value.sortColumn = column;
+
+        console.log(searchParam.value)
+        getTasks(searchParam.value);
+    };
+
+    const toggleFilterByStatus = (v) => {
+        searchParam.value.filterBy = filterBy.value;
+        getTasks(searchParam.value);
+    };
+    
+    const toggleBy = (v) => {
+        togglePub.value = v;
+
+        searchParam.value.toggleBy = togglePub.value
+        getTasks(searchParam.value);
+    };
+
     watch(formValues, (newValues) => {
         if (form.value) {
             form.value.setValues(newValues);
@@ -97,16 +145,8 @@
 <template>
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Tasks</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Tasks</li>
-                    </ol>
-                </div>
+            <div class="mb-2">
+                <h1 class="m-0">Tasks</h1>
             </div>
         </div>
     </div>
@@ -121,23 +161,51 @@
                     </button>
                 </div>
 
-                <div class="col-md-3">
-                    <Search :page="searchParam.page" :limit="searchParam.limit" @toggle-search="getTasks" />
+                <div class="col-md-6 d-flex align-items-center justify-content-end">
+                    <div class="md-4 mr-1">
+                        <select name="filter_by" v-model="filterBy" class="form-control mr-2" @change="toggleFilterByStatus">
+                            <option v-for="(status, index) in statuses" :key="index" :value="index">{{ status }}</option>
+                        </select>
+                    </div>
+                    <div class="md-7">
+                        <Search :page="searchParam.page" :limit="searchParam.limit" @toggle-search="getTasks" />
+                    </div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-body">
+                    <div class="btn-group toggle">
+                        <button type="button" class="btn btn-sm"  :class="togglePub === 'is_published' ? 'btn-success' : 'btn-light'"  @click="toggleBy('is_published')">Published</button>
+                        <button type="buton" class="btn btn-sm"  :class="togglePub === 'draft' ? 'btn-warning text-white' : 'btn-light'" @click="toggleBy('draft')">Drafts</button>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hovered">
                             <thead>
                                 <tr>
                                     <th style="width: 10px"><input type="checkbox" class="bulk-delete" v-model="parentChecked" @change="checkAllChildren"></th>
                                     <th style="width: 50px">ID</th>
-                                    <th>Title</th>
+                                    <th @click="sortBy('title')">
+                                        Title
+                                        <span v-if="searchParam.sortColumn === 'title'">
+                                            <i :class="searchParam.sortOrder === 'asc' ? 'fa fa-sort-up' : 'fa fa-sort-down'"></i>
+                                        </span>
+                                        <span v-else>
+                                            <i class="fa fa-sort-down"></i>
+                                        </span>
+                                    </th>
                                     <th>Content</th>
                                     <th>Status</th>
-                                    <th>Date Added</th>
+                                    <th @click="sortBy('created_at')">
+                                        Date Added
+                                        <span v-if="searchParam.sortColumn === 'created_at'">
+                                            <i :class="searchParam.sortOrder === 'asc' ? 'fa fa-sort-up' : 'fa fa-sort-down'"></i>
+                                        </span>
+                                        <span v-else>
+                                            <i class="fa fa-sort-down"></i>
+                                        </span>
+                                    </th>
+                                    <th></th>
                                     <th>Options</th>
                                 </tr>
                             </thead>
@@ -157,7 +225,15 @@
                             </tfoot>
                         </table>
 
-                        <Bootstrap4Pagination :data="tasks" @pagination-change-page="changePage"/>
+                        <div class="d-flex justify-content-between">
+                            <div class="mr-2">
+                                <select class="form-control" name="per_page" v-model="searchParam.limit" @change="toggleLimit">
+                                    <option v-for="(limit, index) in page_limits" :key="index" :value="limit">{{ limit }} per page</option>
+                                </select>
+                            </div>
+
+                            <Bootstrap4Pagination :data="tasks" @pagination-change-page="changePage" :limit="searchParam.limit"/>
+                        </div>
 
                     </div>
                 </div>

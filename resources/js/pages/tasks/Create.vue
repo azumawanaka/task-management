@@ -20,17 +20,13 @@
         content: '',
         status: '',
         images: [],
-        is_published: true,
+        is_published: 'is_published',
     });
 
     // Define Yup schema for validation
     const schema = yup.object().shape({
         title: yup.string().required('Title is required').max(100),
         content: yup.string().required('Content is required'),
-        images: yup.mixed().test('fileSize', 'File size is too large', (value) => {
-            if (!value) return true; // If no file uploaded, pass validation
-            return value.reduce((acc, file) => acc && file.size <= 4194304, true); // 4MB in bytes (4 * 1024 * 1024)
-        }),
         status: yup.string().required('Status is required'),
     });
 
@@ -44,6 +40,10 @@
             return false;
         }
     };
+
+    const saveBy = (v) => {
+        formData.value.is_published = v
+    }
 
     const handleChange = (event) => {
         const selectedFiles = event.target.files;
@@ -67,7 +67,7 @@
         filePreviews.value.splice(index, 1);
     };
 
-    const submitForm = async () => {
+    const submitForm = async ({ setErrors }) => {
         isValid.value = await validateForm();
 
         if (isValid.value) {
@@ -85,11 +85,9 @@
                 .then((response) => {
                     loading.value = false;
 
-                    console.log(response);
-
                     Swal.fire({
                         title: "Success!",
-                        text: "Task was successfully added!",
+                        text: formData.value.is_published === 'is_published' ? "Task was successfully published!" : "Task was succesfully drafted!",
                         icon: "success",
                         timer: 3000,
                         willClose: () => {
@@ -97,8 +95,12 @@
                         }
                     });
                 }).catch((error) => {
-                    toastr.error('An error occurred while saving.');
-                    console.error(error);
+                    console.log(error.response.data.message);
+                    if (error.response && error.response.data.errors) {
+                        toastr.error(error.response.data.message);
+                    } else {
+                        toastr.error('An error occurred. Please try again!');
+                    }
                 });
         }
     };
@@ -161,16 +163,16 @@
                             </div>
 
                             <div class="row">
-                                <div v-for="(prev, index) in filePreviews" :key="index" class="d-flex flex-column justify-content-between col-md-1 mb-3 border py-2">
+                                <div v-for="(prev, index) in filePreviews" :key="index" class="d-flex flex-column justify-content-between col-md-2 mb-3 border py-2">
                                     <img :src="prev" alt="Task Image Preview" class="img-fluid">
                                     <button type="button" class="btn btn-block btn-xs btn-danger py-0" @click="deleteFile(index)">
                                         Delete
                                     </button>
                                 </div>
 
-                                <div class="col-md-1 mb-3 ml-2 border py-2 h3 d-flex align-items-center justify-content-center text-info hover">
+                                <div class="col-md-2 mb-3 ml-2 border py-2 h3 d-flex align-items-center justify-content-center text-info hover">
                                     <i class="fa fa-plus-square"></i>
-
+                                    <small style="font-size: 12px;" class="ml-2">Add Files</small>
                                     <Field name="images" v-slot="{ value, errorMessage  }" rules="required">
                                         <input type="file" id="fileBtn" @change="handleChange($event)" accept="image/*" multiple />
                                         <span v-if="errorMessage" class="text-danger">{{ errorMessage }}</span>
@@ -178,19 +180,9 @@
                                 </div>
                             </div>
 
-                            <div class="input-group mb-3">
-                                <label>
-                                    <input type="radio" name="is_published" value="1" v-model="formData.is_published" checked />
-                                    Publish
-                                </label>
-                                <label>
-                                    <input type="radio" name="is_published" value="0" v-model="formData.is_published" />
-                                    Save as draft
-                                </label>
-                            </div>
-
-                            <div class="d-flex justify-content-end">
-                                <button class="btn btn-primary btn-md" type="submit">Submit</button>
+                            <div class="d-flex justify-content-end mb-5">
+                                <button class="btn btn-info btn-md mr-2" type="submit" @click="saveBy('draft')">Save as draft</button>
+                                <button class="btn btn-primary btn-md" type="submit" @click="saveBy('is_published')">Publish</button>
                             </div>
 
                         </div>

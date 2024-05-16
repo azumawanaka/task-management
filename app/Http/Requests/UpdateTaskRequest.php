@@ -23,8 +23,9 @@ class UpdateTaskRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'title' => 'required|max:100|unique:tasks,title,' . $this->get('id'),
+        $route = $this->route('task');
+        $rules = [
+            'title' => 'required|unique:tasks,title,' . $route->id,
             'content' => 'required',
             'status' => 'required',
         ];
