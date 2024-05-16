@@ -183,7 +183,7 @@
                         <table class="table table-hovered">
                             <thead>
                                 <tr>
-                                    <th style="width: 10px"><input type="checkbox" class="bulk-delete" v-model="parentChecked" @change="checkAllChildren"></th>
+                                    <!-- <th style="width: 10px"><input type="checkbox" class="bulk-delete" v-model="parentChecked" @change="checkAllChildren"></th> -->
                                     <th style="width: 50px">ID</th>
                                     <th @click="sortBy('title')">
                                         Title

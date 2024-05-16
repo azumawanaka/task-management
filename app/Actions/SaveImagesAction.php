@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Jobs\SaveImages;
 use App\Models\Task;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,9 +19,16 @@ class SaveImagesAction
     {
         $imagePaths = [];
         if ($request->hasFile('images')) {
+
             foreach ($request->file('images') as $image) {
-                $path = $image->store('tasks', 'public');
-                $imagePaths[] = Storage::url($path); 
+                // Store the file and get the path
+                $path = $image->store('temp', 'public');
+                
+                // Dispatch the job with the file path
+                SaveImages::dispatch($path)->onQueue('image-processing');
+                
+                // Save the URL to the image
+                $imagePaths[] = Storage::url($path);
             }
         }
 

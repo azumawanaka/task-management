@@ -95,14 +95,31 @@ class TaskController extends Controller
     public function bulkDelete(): JsonResponse
     {
         $ids = request('ids');
-        $tasks = Task::whereIn('id', $ids); 
 
-        foreach ($tasks->get() as $task) {
-            $this->deleteFiles($task);
+        foreach ($ids as $t) {
+            $task = Task::find($t);
+            
+            // Check if $task->files is a string
+            if (is_string($task->files)) {
+                // Assuming $task->files contains comma-separated file paths
+                $filePaths = explode(',', $task->files);
+                
+                // Loop through each file path and delete the file
+                foreach ($filePaths as $filePath) {
+                    $this->deleteFile($filePath);
+                }
+            } elseif (is_array($task->files)) {
+                // Assuming $task->files is an array of file objects
+                foreach ($task->files as $tf) {
+                    if (!is_string($tf)) {
+                        $this->deleteFiles($tf);
+                    }
+                }
+            }
         }
 
-        $tasks->delete();
-        return response()->json(['message' => 'Selected task was successfully deleted!']);
+        Task::whereIn('id', $ids)->delete();
+        return response()->json(['message' => 'Selected task was successfully moved to trash!']);
     }
 
     /**

@@ -86,7 +86,7 @@
 <template>
 
     <tr>
-        <td><input type="checkbox" class="task_checkbox" @change="toggleSelection(task)"></td>
+        <!-- <td><input type="checkbox" class="task_checkbox" @change="toggleSelection(task)"></td> -->
         <td>{{ task.id }}</td>
         <td>{{ task.title }}</td>
         <td>{{ task.content.length > 50 ? task.content.slice(0, 50) + '...' : task.content }}</td>
