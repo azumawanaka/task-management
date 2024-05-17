@@ -136,10 +136,9 @@
     </div>
     <div class="content">
         <div class="container-fluid">
-            <div class="d-flex justify-content-between">
-                <div class="mb-3">
-                    <router-link to="/tasks/create" class="btn btn-primary btn-sm">Create</router-link>
-                </div>
+            <div class="d-flex justify-content-between mb-2">
+                
+                <router-link to="/tasks/create" class="btn btn-primary">Create</router-link>
 
                 <div class="col-md-6 d-flex align-items-center justify-content-end">
                     <div class="md-4 mr-1">

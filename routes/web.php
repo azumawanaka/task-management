@@ -35,7 +35,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/tasks/{task}/show', [TaskController::class, 'show']);
     Route::post('/api/tasks/{task}', [TaskController::class, 'update']);
     Route::delete('/api/tasks/{task}', [TaskController::class, 'destroy']);
-    Route::delete('/api/tasks', [TaskController::class, 'bulkDelete']);
     Route::post('/api/tasks/{task}/publish_status', [TaskController::class, 'updatePublishStatus']);
 
     Route::get('/api/tasks/statuses', function () {

@@ -138,7 +138,7 @@
                                     <td>{{ task.status }}</td>
                                     <td>{{ formatDate(task.created_at) }}</td>
                                     <td>
-                                        <router-link :to="`/tasks/${task.id}/edit`" class="text-info"><i class="fa fa-edit"></i></router-link>
+                                        <router-link :to="`/tasks/${task.id}/sub-tasks/edit`" class="text-info"><i class="fa fa-edit"></i></router-link>
 
                                         <a href="#"
                                             class="text-danger ml-2"

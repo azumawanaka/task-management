@@ -1,6 +1,6 @@
 <script setup>
     import axios from 'axios';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import { ref, onMounted } from 'vue';
     import { Form, Field } from 'vee-validate';
 
@@ -11,6 +11,8 @@
     import '@vuepic/vue-datepicker/dist/main.css';
 
     const route = useRoute();
+    const router = useRouter();
+    
     const toastr = useToastr();
     const loading = ref(false);
     const isValid = ref(true);
@@ -90,16 +92,13 @@
                 })
                 .then((response) => {
                     loading.value = false;
-
-                    console.log(response);
-
                     Swal.fire({
                         title: "Success!",
                         text: formData.value.is_published === 'is_published' ? "Task was successfully published!" : "Task was succesfully drafted!",
                         icon: "success",
                         timer: 3000,
                         willClose: () => {
-                            window.location.href = '/tasks';
+                            router.push(`/tasks`);
                         }
                     });
                 }).catch((error) => {
