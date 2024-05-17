@@ -1,7 +1,7 @@
 <script setup>
     import axios from 'axios';
     import { ref, onMounted, watch } from 'vue';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
     import { Bootstrap4Pagination } from 'laravel-vue-pagination';
     import Search from '../../components/searchbars/tasks/Search.vue';
     import { formatDate } from '../../helper.js';
@@ -9,9 +9,10 @@
     import { useToastr } from '../../toastr';
     const toastr = useToastr();
 
+    const route = useRoute();
+
     const taskId = ref(null);
     const isSubTaskRow = ref(false);
-    const route = useRoute();
     const task = ref({});
     const subTasks = ref([]);
     const statuses = ref([]);
@@ -95,6 +96,46 @@
                     }
                 });
         }
+    };
+
+    const deleteTask = (taskId) => {
+        return axios.delete(`/api/tasks/${taskId}`);
+    };
+
+    const confirmTaskDeletion = (task) => {
+        taskId.value = task.id;
+        Swal.fire({
+            title: "Are you sure?",
+            // text: "Moving",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteTask(task.id).then((response) => {
+                    Swal.fire({
+                        title: "Success!",
+                        text: "Task was moved to trash.",
+                        icon: "success",
+                        showConfirmButton: true,
+                        timer: 1500,
+                        willClose: () => {
+                            taskId.value = route.params.id;
+                            getSubTasks(taskId.value);
+                        }
+                    });
+                }).catch((error) => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "An error occured. Please try again later!",
+                        icon: "error",
+                        timer: 1500,
+                    });
+                });
+            }
+        });
     };
 
     onMounted(() => {

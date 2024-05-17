@@ -2,7 +2,6 @@
     import { ref, watch } from 'vue';
     import { formatDate } from '../../helper.js';
     import ConfirmDelete from '../../components/modals/tasks/ConfirmDelete.vue';
-    import SubTasks from '../../components/modals/tasks/SubTasks.vue';
 
     import { useToastr } from '../../toastr';
     const toastr = useToastr();
