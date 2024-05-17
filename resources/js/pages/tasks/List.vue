@@ -68,23 +68,6 @@
         getTasks(searchParam.value);
     };
 
-    const bulkDelete = () => {
-        axios.delete(`/api/tasks`, {
-            data: {
-                ids: selectedtasks.value
-            }
-        })
-        .then((response) => {
-            toastr.success(response.data.message);
-
-            selectedtasks.value = {};
-
-            $('.bulk-delete').prop('checked', false).change();
-
-            getTasks(searchParam.value);
-        });
-    };
-
     const toggleSelection = (task) => {
         const index = selectedtasks.value.indexOf(task.id);
         if (index === -1) {

@@ -20,15 +20,6 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 // Auth::routes();
 
 Route::middleware(['auth'])->group(function () {
-    // Users
-    Route::get('/api/users', [UserController::class, 'index']);
-    Route::post('/api/users', [UserController::class, 'store']);
-    Route::put('/api/users/{user}', [UserController::class, 'update']);
-    Route::get('/api/check-email', [UserController::class, 'checkEmail']);
-    Route::delete('/api/users/{user}', [UserController::class, 'destroy']);
-    Route::get('/api/users/search', [UserController::class, 'search']);
-    Route::delete('/api/users', [UserController::class, 'bulkDelete']);
-
     // Tasks
     Route::get('/api/tasks', [TaskController::class, 'index']);
     Route::post('/api/tasks', [TaskController::class, 'store']);

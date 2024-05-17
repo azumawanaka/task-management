@@ -1,6 +1,5 @@
 import Login from './pages/auth/Login.vue';
 import Register from './pages/auth/Register.vue';
-import UserList from './pages/users/UserList.vue';
 import TaskList from './pages/tasks/List.vue';
 import TaskCreate from './pages/tasks/Create.vue';
 import TaskEdit from './pages/tasks/Edit.vue';
@@ -17,12 +16,6 @@ export default [
         path: '/register',
         name: 'register',
         component: Register,
-    },
-    {
-        path: '/admin/users',
-        name: 'admin.users',
-        component: UserList,
-        meta: { requiresAuth: true },
     },
     {
         path: '',
