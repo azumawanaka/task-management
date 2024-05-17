@@ -82,7 +82,10 @@ class TaskController extends Controller
      */
     public function destroy(Task $task): Response
     {
-        $this->deleteFiles($task);
+        if ($task->files) {
+            $this->deleteFiles($task);
+        }
+        
         $task->delete();
 
         return response()->noContent();
