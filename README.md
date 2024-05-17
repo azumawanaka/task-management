@@ -7,6 +7,9 @@ This is a Task Management application built using Laravel for the backend and Vu
 - **User Authentication**: Users can sign up and sign in
 - **Task Management**: Users can create, view, update, and delete tasks. Tasks can have sub-tasks.
 - **Search and Filtering**: Users can search for tasks and filter them based on various criteria.
+- **Auto Delete Trashed Tasks**: System will automatically delete/remove trashed tasks after 30 days.
+  ```bash
+    php artisan tasks:delete-old
 
 ## Technologies Used
 
